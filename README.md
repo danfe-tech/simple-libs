@@ -38,7 +38,7 @@ Step 4 ( optional ) : Add cdi supported jdbc module
         <groupId>tech.danfe</groupId>
         <artifactId>simple-libs-jdbc-cdi</artifactId>
         <version>0.1.0</version>
-</dependency>
+    </dependency>
 ```
 
 
@@ -66,7 +66,7 @@ Step 4 ( optional ) : Add cdi supported jdbc module
 ```
 
 ## Using JDBC CDI Module
-1. Just need to implement DataSourceConfig 
+1. Implement DataSourceConfig 
 ```java
     public class SimpleDataSource implement DataSourceConfig
     {
@@ -76,6 +76,14 @@ Step 4 ( optional ) : Add cdi supported jdbc module
         public DataSource getDataSource(){
             return datasource;
         }
+    }
+    //while injecting
+    @Inject
+    @SimpleJdbcTemplate
+    private JdbcTemplateWrapper wrapper;
+    
+    public void query(){
+        this.wrapper.getTemplate().queryForXXX();
     }
 ```
 
