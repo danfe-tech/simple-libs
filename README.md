@@ -26,11 +26,11 @@ Step 2 : Add core dependency
 ```
 Step 3 : Add jdbc module dependency
 ```xml
-  <dependency>
-    <groupId>tech.danfe</groupId>
-    <artifactId>simple-libs-jdbc</artifactId>
-    <version>0.1.0</version>
-  </dependency>
+    <dependency>
+        <groupId>tech.danfe</groupId>
+        <artifactId>simple-libs-jdbc</artifactId>
+        <version>0.1.0</version>
+    </dependency>
 ```
 
 ## API
@@ -43,6 +43,17 @@ Step 3 : Add jdbc module dependency
  Song song = new Song("12478", "test Name", 10, "Named param");
  String sql = "Insert into songs (song_key,filename,title,price) values (:songKey,:fileName,:title,:price)";
  jdbcHelper.execute(sql, ObjectUtils.toMap(song));
+
+ //Query for List
+ List<Song> songs = jdbcHelper.queryForList("select * from songs", new SongMapper());
+
+ // Mapper
+ public class SongMapper implements RowMapper<Song> {
+    @Override
+    public Song mapRow(ResultSet resultSet) {
+        return new Song(ResultSetUtils.getString(resultSet, "song_key", null), ResultSetUtils.getString(resultSet, "filename", null), ResultSetUtils.getDouble(resultSet, "price", 0), ResultSetUtils.getString(resultSet, "title", null));
+    }
+}
 ```
 
 
