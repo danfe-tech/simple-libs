@@ -40,12 +40,6 @@ public class ResultSetUtils {
      *
      * @param resultSet
      * @return list of column names
-     * @throws
-     * <p>
-     * IllegalArgumentException
-     * </p> if
-     * <p>
-     * resultSet</p> null
      */
     public static List<String> extractColumns(ResultSet resultSet) {
         try {

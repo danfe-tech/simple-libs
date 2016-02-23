@@ -260,7 +260,7 @@ public class NamedParameterStatement {
      * Closes the statement.
      *
      * @throws SQLException if an error occurred
-     * @see Statement#close()
+     * 
      */
     public void close() throws SQLException {
         statement.close();
@@ -277,9 +277,6 @@ public class NamedParameterStatement {
 
     /**
      * Executes all of the batched statements.
-     *
-     * See {@link Statement#executeBatch()} for details.
-     *
      * @return update counts for each statement
      * @throws SQLException if something went wrong
      */

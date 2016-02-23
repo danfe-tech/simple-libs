@@ -22,7 +22,7 @@ import java.util.Iterator;
 /***
  * 
  * @author Suraj Chhetry
- * @param <T> 
+ * 
  */
 public abstract class IteratorBatchFeeder<T> implements BatchFeeder {
 

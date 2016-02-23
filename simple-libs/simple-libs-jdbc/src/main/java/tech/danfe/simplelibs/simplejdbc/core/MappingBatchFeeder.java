@@ -22,7 +22,7 @@ import java.util.Iterator;
 /**
  *
  * @author Suraj Chhetry
- * @param <T>
+ * 
  */
 public class MappingBatchFeeder<T> extends IteratorBatchFeeder<T> {
 

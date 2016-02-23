@@ -20,7 +20,7 @@ import java.sql.SQLException;
 /**
  * 
  * @author Suraj Chhetry
- * @param <T> 
+ * 
  */
 public interface NamedStatementMapper<T> {
 

@@ -21,7 +21,7 @@ import java.sql.PreparedStatement;
 /**
  *
  * @author Suraj Chhetry
- * @param <T>
+ * 
  */
 public interface StatementMapper<T> {
 

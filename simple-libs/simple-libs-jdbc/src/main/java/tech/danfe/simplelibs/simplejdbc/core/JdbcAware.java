@@ -17,11 +17,6 @@ package tech.danfe.simplelibs.simplejdbc.core;
 
 /**
  *
- * If you want the objects that are created by JdbcTemplate using a
- * {@link com.github.simplejdbc.mapper.RowMapper} to hold a reference to the
- * JdbcTemplate object that created them, you can make that type of objects to
- * implement this interface.
- *
  * @author Suraj Chhetry
  */
 public interface JdbcAware {

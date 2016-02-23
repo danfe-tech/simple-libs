@@ -15,7 +15,6 @@
  */
 package tech.danfe.simplelibs.simplejdbc.core;
 
-
 import javax.sql.DataSource;
 import java.io.InputStream;
 import java.io.Reader;
@@ -419,7 +418,7 @@ public class JdbcTemplate {
      * statement parameters
      * @param <T> Type of the bean
      * @return Returns an ArrayList of objects for the provided generic type
-     * @see com.github.simplejdbc.core.RowMapper
+     *
      */
     public <T> ArrayList<T> queryForList(String sql, final RowMapper<T> mapper, Object... params) {
         final ArrayList<T> list = new ArrayList<>();
@@ -444,12 +443,14 @@ public class JdbcTemplate {
     /**
      * If only one integer column is selected in the query, you can use this
      * method to get a list of all these integers from the result set as an
-     * ArrayList<Integer>
+     * <pre> {@code ArrayList<Integer> } </pre>
      *
      * <p>
      * Example:</p>
      * <pre>
+     * {@code
      * ArrayList<Integer> list = jdbc.queryForIntegerList("select userid from users where register_date < '2009'");
+     * }
      * </pre>
      *
      * If more than one column is selected, only the first column is used and
@@ -483,12 +484,11 @@ public class JdbcTemplate {
     /**
      * If only one String column is selected in the query, you can use this
      * method to get a list of all these strings from the result set as an
-     * ArrayList<String>
-     *
-     * <p>
-     * Example:</p>
+     * {@code ArrayList<String>} Example:
      * <pre>
+     * {@code
      * ArrayList<String> list = jdbc.queryForStringList("select username from users where register_date < '2009'");
+     * }
      * </pre>
      *
      * If more than one column is selected, only the first column is used and
@@ -520,10 +520,12 @@ public class JdbcTemplate {
     }
 
     /**
+     * <pre>
      * If two columns are selected in a query, you can retrieve the result set
-     * as a map of key => value pairs using this method.
+     * as a map of {@code key => value} pairs using this method.
      *
      * If the query does not return any rows, an empty SortedMap is returned.
+     * </pre>
      *
      * @param sql The sql query that selects at least two columns.
      * @param resultSetMapper A ResultSetMapper to create map entries from the
@@ -623,7 +625,9 @@ public class JdbcTemplate {
      * <p>
      * Example:</p>
      * <pre>
+     * {@code
      * String userName = jdbc.queryForString("select user_name from users where user_id = ?", 10);
+     * }
      * </pre>
      *
      * <p>
@@ -654,7 +658,9 @@ public class JdbcTemplate {
      * <p>
      * Example:</p>
      * <pre>
+     * {@code
      * long userId = jdbc.queryForLong("select user_id from users where user_name = ?", "test");
+     * }
      * </pre>
      *
      * <p>
@@ -687,7 +693,9 @@ public class JdbcTemplate {
      * <p>
      * Example:</p>
      * <pre>
+     * {@code
      * double points = jdbc.queryForDouble("select score from users where user_name = ?", "test");
+     * }
      * </pre>
      *
      * <p>
@@ -718,7 +726,9 @@ public class JdbcTemplate {
      * <p>
      * Example:</p>
      * <pre>
+     * {@code
      * float points = jdbc.queryForFloat("select score from users where user_name = ?", "test");
+     * }
      * </pre>
      *
      * <p>
@@ -750,7 +760,9 @@ public class JdbcTemplate {
      * <p>
      * Example:</p>
      * <pre>
+     * {@code
      * Timestamp date = jdbc.queryForTimestamp("select registration_date from users where user_name = ?", "test");
+     * }
      * </pre>
      *
      * <p>
@@ -834,7 +846,9 @@ public class JdbcTemplate {
      * <p>
      * Example:</p>
      * <pre>
+     * {@code
      * boolean active = jdbc.queryForBoolea ("select active from users where user_name = ?", "test");
+     * }
      * </pre>
      *
      * <p>
@@ -947,6 +961,7 @@ public class JdbcTemplate {
      * <p>
      * Example:</p>
      * <pre>
+     * {@code
      * jdbc.query("select * from users where userId < ?", new ResultSetHandler() {
      *    public void processRow(ResultSet rs) throws SQLException {
      *       // this method is called for every row in the resultset.
@@ -954,6 +969,7 @@ public class JdbcTemplate {
      *       // passed ResultSet object.
      *    }
      * }, 2000);
+     * }
      * </pre>
      *
      * <p>
@@ -1006,6 +1022,7 @@ public class JdbcTemplate {
      * <p>
      * Example:</p>
      * <pre>
+     * {@code
      * QueryResult result = jdbc.query("select * from users where user_id < ?", 2000);
      * result.setFetchSize(100);
      * // The query isn't actually executed until the QueryResult objects next() method is called.
@@ -1015,6 +1032,7 @@ public class JdbcTemplate {
      *    int userId = result.getInt("user_id");
      * }
      * result.close(); // You have to explicitly close the resultset with calling the close method
+     * }
      * </pre>
      *
      * <p>
@@ -1060,11 +1078,13 @@ public class JdbcTemplate {
      * <p>
      * Example:</p>
      * <pre>
+     * {@code
      * int updatedUsers = jdbc.execute("update users set active = 0 where register_date < ?", "2009-01-01");
-     * </pre> <p> If somet h
-     * i
-     * ng goes wrong with the execution of the statement, a JdbcException may be
-     * thrown</p>
+     * }
+     * </pre>
+     * <p>
+     * If somet h i ng goes wrong with the execution of the statement, a
+     * JdbcException may be thrown</p>
      *
      * @param sql The sql statement to be executed on the server
      * @param params Optional parameteres that will be used as prepared
@@ -1102,6 +1122,7 @@ public class JdbcTemplate {
      * <p>
      * Example:</p>
      * <pre>
+     * {@code
      * class User {
      *    String userName;
      *    int userId;
@@ -1121,7 +1142,7 @@ public class JdbcTemplate {
      * u.userId = 234;
      *
      * int rowCount = jdbc.execute("insert into users (user_id, user_name) values (?, ?)", u, User.getMapper());
-     *
+     *}
      * </pre>
      *
      * @param sql The sql statement
@@ -1264,12 +1285,13 @@ public class JdbcTemplate {
      * <p>
      * Example:</p>
      * <pre>
+     * {@code
      * List<User> users = getUsers();
      *
      * // Inserts all the User objects in the list using a batch statement
      * int[] result = jdbc.executeBatch("insert into users (user_id, user_name) values (?, ?)",
      *                                  new MappingBatchFeeder<User>(users.iterator(), User.getMapper()));
-     *
+     *}
      * </pre>
      *
      * <p>
