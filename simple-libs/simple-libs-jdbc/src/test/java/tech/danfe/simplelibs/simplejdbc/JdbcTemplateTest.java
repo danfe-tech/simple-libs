@@ -15,120 +15,166 @@
  */
 package tech.danfe.simplelibs.simplejdbc;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import org.junit.After;
-import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
-import org.junit.runners.MethodSorters;
-import tech.danfe.simplelibs.ObjectUtils;
+import org.junit.Test;
+import tech.danfe.simplelibs.simplejdbc.core.DBUtils;
 import tech.danfe.simplelibs.simplejdbc.core.JdbcTemplate;
+import tech.danfe.simplelibs.simplejdbc.core.QueryParameter;
 import tech.danfe.simplelibs.simplejdbc.core.SimpleDataSource;
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author Suraj Chhetry
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class JdbcTemplateTest {
 
-    // JDBC driver name and database URL
-    static final String JDBC_DRIVER = "org.hsqldb.jdbcDriver";
-    static final String DB_URL = "jdbc:hsqldb:mem:testdb";
-    //  Database credentials
-    static final String USER = "sa";
-    static final String PASS = "";
     private static final Logger LOG = Logger.getLogger(JdbcTemplateTest.class.getName());
-    private JdbcTemplate jdbcHelper = null;
+    private JdbcTemplate jdbcTemplate = null;
+    static SimpleDataSource dataSource = null;
 
     @BeforeClass
     public static void setup() {
-        SimpleDataSource dataSource = new SimpleDataSource(JDBC_DRIVER, DB_URL, USER, PASS);
+        dataSource = new SimpleDataSource(TestConfig.JDBC_DRIVER, TestConfig.DB_URL, TestConfig.USER, TestConfig.PASS);
         JdbcTemplate jdbcHelper = new JdbcTemplate(dataSource);
-        //create table
-        String SONG_TABLE = "CREATE TABLE songs\n"
-                + "(\n"
-                + "  song_key character varying(255) NOT NULL,\n"
-                + "  filename character varying(255),\n"
-                + "  price double precision NOT NULL,\n"
-                + "  title character varying(255),\n"
-                + "  CONSTRAINT songs_pkey PRIMARY KEY (song_key)\n"
-                + ")";
-        jdbcHelper.execute(SONG_TABLE);
+        DBUtils dBUtils = new DBUtils(dataSource);
+        if (!dBUtils.doesTableExists(TestConfig.SONG_TABLE_NAME)) {
+            jdbcHelper.executeUpdate(TestConfig.tableCreateScript());
+        }
+
+    }
+
+    @After
+    public void clean() {
+        this.jdbcTemplate.executeUpdate("delete from songs");
     }
 
     @Before
     public void initSetup() {
-        SimpleDataSource dataSource = new SimpleDataSource(JDBC_DRIVER, DB_URL, USER, PASS);
-        this.jdbcHelper = new JdbcTemplate(dataSource);
+        // SimpleDataSource simpleDataSource = new SimpleDataSource(TestConfig.JDBC_DRIVER, TestConfig.DB_URL, TestConfig.USER, TestConfig.PASS);
+        this.jdbcTemplate = new JdbcTemplate(this.dataSource);
     }
 
     @Test
     public void test_insert() {
         Song song = new Song("12478", "test Name", 10, "Named param");
-        String sql = "Insert into songs (song_key,filename,title,price) values (:songKey,:fileName,:title,:price)";
-        this.jdbcHelper.execute(sql, ObjectUtils.toMap(song));
-        List<Song> songs = jdbcHelper.queryForList("select song_key,filename from songs", new SongMapper());
+        String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
+        List<QueryParameter> parameters = new ArrayList<>();
+        parameters.add(new QueryParameter("songKey", song.getSongKey()));
+        parameters.add(new QueryParameter("fileName", song.getFileName()));
+        parameters.add(new QueryParameter("title", song.getTitle()));
+        parameters.add(new QueryParameter("price", song.getPrice()));
+        parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+        parameters.add(new QueryParameter("note", "test"));
+        this.jdbcTemplate.executeUpdate(sql, parameters);
+        List<Song> songs = jdbcTemplate.queryForList("select song_key,filename from songs", new SongMapper());
         assertEquals(1, songs.size());
     }
 
     @Test
-    public void test_transaction_one() {
-        this.jdbcHelper.beginTransaction();
-        String key = String.valueOf(System.nanoTime());
-        Song song = new Song(key, "test Name", 10, "Named param from transaction # " + key);
-        String sql = "Insert into songs (song_key,filename,title,price) values (:songKey,:fileName,:title,:price)";
-        this.jdbcHelper.execute(sql, ObjectUtils.toMap(song));
-        List<Song> songs = jdbcHelper.queryForList("select * from songs", new SongMapper());
-        assertEquals(1, songs.size());
-        this.jdbcHelper.commitTransaction();
+    public void test_transaction_with_rollback() {
+        Song song = new Song("12478", "test Name", 10, "Named param");
+        String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
+        List<QueryParameter> parameters = new ArrayList<>();
+        parameters.add(new QueryParameter("songKey", song.getSongKey()));
+        parameters.add(new QueryParameter("fileName", song.getFileName()));
+        parameters.add(new QueryParameter("title", song.getTitle()));
+        parameters.add(new QueryParameter("price", song.getPrice()));
+        parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+        parameters.add(new QueryParameter("note", "test"));
+        this.jdbcTemplate.beginTransaction();
+        this.jdbcTemplate.executeUpdate(sql, parameters);
+        this.jdbcTemplate.rollbackTransaction();
+        List<Song> songs = jdbcTemplate.queryForList("select song_key,filename from songs", new SongMapper());
+        assertEquals(0, songs.size());
     }
 
     @Test
-    public void test_transaction_nested() {
-        String key = String.valueOf(System.nanoTime());
-        Song song = new Song(key, "test Name", 10, "Named param from transaction # " + key);
-        this.jdbcHelper.beginTransaction();
-        this.nextInsert();
-        String sql = "Insert into songs (song_key,filename,title,price) values (:songKey,:fileName,:title,:price)";
-        this.jdbcHelper.execute(sql, ObjectUtils.toMap(song));
-        List<Song> songs = jdbcHelper.queryForList("select * from songs", new SongMapper());
+    public void test_transaction_with_commit() {
+        Song song = new Song("12478", "test Name", 10, "Named param");
+        String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
+        List<QueryParameter> parameters = new ArrayList<>();
+        parameters.add(new QueryParameter("songKey", song.getSongKey()));
+        parameters.add(new QueryParameter("fileName", song.getFileName()));
+        parameters.add(new QueryParameter("title", song.getTitle()));
+        parameters.add(new QueryParameter("price", song.getPrice()));
+        parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+        parameters.add(new QueryParameter("note", "test"));
+        this.jdbcTemplate.beginTransaction();
+        this.jdbcTemplate.executeUpdate(sql, parameters);
+        this.jdbcTemplate.commitTransaction();
+        List<Song> songs = jdbcTemplate.queryForList("select song_key,filename from songs", new SongMapper());
+        assertEquals(1, songs.size());
+    }
+
+    private void insert_only() {
+        Song song = new Song("12478233", "test Name", 10, "Named param");
+        String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
+        List<QueryParameter> parameters = new ArrayList<>();
+        parameters.add(new QueryParameter("songKey", song.getSongKey()));
+        parameters.add(new QueryParameter("fileName", song.getFileName()));
+        parameters.add(new QueryParameter("title", song.getTitle()));
+        parameters.add(new QueryParameter("price", song.getPrice()));
+        parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+        parameters.add(new QueryParameter("note", "test"));
+        this.jdbcTemplate.executeUpdate(sql, parameters);
+
+    }
+
+    private void insert_with_new_datasource() {
+        JdbcTemplate jdbcTemplate2 = new JdbcTemplate(dataSource);
+        Song song = new Song("12478233", "test Name", 10, "Named param");
+        String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
+        List<QueryParameter> parameters = new ArrayList<>();
+        parameters.add(new QueryParameter("songKey", song.getSongKey()));
+        parameters.add(new QueryParameter("fileName", song.getFileName()));
+        parameters.add(new QueryParameter("title", song.getTitle()));
+        parameters.add(new QueryParameter("price", song.getPrice()));
+        parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+        parameters.add(new QueryParameter("note", "test"));
+        jdbcTemplate2.executeUpdate(sql, parameters);
+    }
+
+    @Test
+    public void test_nested_transaction_with_commit() {
+        Song song = new Song("12478", "test Name", 10, "Named param");
+        String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
+        List<QueryParameter> parameters = new ArrayList<>();
+        parameters.add(new QueryParameter("songKey", song.getSongKey()));
+        parameters.add(new QueryParameter("fileName", song.getFileName()));
+        parameters.add(new QueryParameter("title", song.getTitle()));
+        parameters.add(new QueryParameter("price", song.getPrice()));
+        parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+        parameters.add(new QueryParameter("note", "test"));
+        this.jdbcTemplate.beginTransaction();
+        this.insert_only();
+        this.jdbcTemplate.executeUpdate(sql, parameters);
+        this.jdbcTemplate.commitTransaction();
+        List<Song> songs = jdbcTemplate.queryForList("select song_key,filename from songs", new SongMapper());
         assertEquals(2, songs.size());
-        //this.jdbcHelper.getConnection().rollback(savepoint);
-        this.jdbcHelper.rollbackTransaction();
-        List<Song> songsTemp = jdbcHelper.queryForList("select * from songs", new SongMapper());
-        assertEquals(0, songsTemp.size());
-
     }
 
     @Test
-    public void test_transaction_rollback() {
-        this.jdbcHelper.beginTransaction();
-        String key = String.valueOf(System.nanoTime());
-        Song song = new Song(key, "test Name", 10, "Named param from transaction # " + key);
-        String sql = "Insert into songs (song_key,filename,title,price) values (:songKey,:fileName,:title,:price)";
-        this.jdbcHelper.execute(sql, ObjectUtils.toMap(song));
-        List<Song> songs = jdbcHelper.queryForList("select * from songs", new SongMapper());
+    public void test_nested_transaction_with_rollback() {
+        Song song = new Song("12478", "test Name", 10, "Named param");
+        String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
+        List<QueryParameter> parameters = new ArrayList<>();
+        parameters.add(new QueryParameter("songKey", song.getSongKey()));
+        parameters.add(new QueryParameter("fileName", song.getFileName()));
+        parameters.add(new QueryParameter("title", song.getTitle()));
+        parameters.add(new QueryParameter("price", song.getPrice()));
+        parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+        parameters.add(new QueryParameter("note", "test"));
+        this.jdbcTemplate.beginTransaction();
+        this.insert_with_new_datasource();
+        this.jdbcTemplate.executeUpdate(sql, parameters);
+        this.jdbcTemplate.rollbackTransaction();
+        List<Song> songs = jdbcTemplate.queryForList("select song_key,filename from songs", new SongMapper());
         assertEquals(1, songs.size());
-        this.jdbcHelper.rollbackTransaction();
-        List<Song> songsTemp = jdbcHelper.queryForList("select * from songs", new SongMapper());
-        assertEquals(0, songsTemp.size());
-    }
-
-    private void nextInsert() {
-        String sql = "Insert into songs (song_key,filename,title,price) values (:songKey,:fileName,:title,:price)";
-        String key = String.valueOf(System.nanoTime());
-        Song song = new Song(key, "test Name", 10, "Named param from transaction # " + key);
-        this.jdbcHelper.beginTransaction();
-        this.jdbcHelper.execute(sql, ObjectUtils.toMap(song));
-        // this.jdbcHelper.commitTransaction();
-    }
-
-    @After
-    public void clean() {
-        this.jdbcHelper.execute("delete from songs");
     }
 }

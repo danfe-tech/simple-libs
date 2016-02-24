@@ -13,28 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tech.danfe.simplelibs.simplejdbc.core;
+package tech.danfe.simplelibsjdbc.cdi;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Iterator;
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+import tech.danfe.simplelibs.simplejdbc.core.JdbcTemplate;
 
 /**
  *
  * @author Suraj Chhetry
- * 
  */
-public class MappingBatchFeeder<T> extends IteratorBatchFeeder<T> {
+public class DataSourceFactory {
 
-    StatementMapper<T> mapper;
+    @Inject
+    private DataSourceConfig dataSource;
 
-    public MappingBatchFeeder(Iterator<T> i, StatementMapper<T> m) {
-        super(i);
-        mapper = m;
+    /**
+     *
+     * @return
+     */
+    @Produces
+    @SimpleJdbcTemplate
+    @RequestScoped
+    public JdbcTemplateWrapper produceDataSource() {
+        JdbcTemplateWrapper jdbcTemplate = new JdbcTemplateWrapper(new JdbcTemplate(dataSource.getDataSource()));
+        return jdbcTemplate;
     }
 
-    @Override
-    public void feedStatement(PreparedStatement stmt, T object) throws SQLException {
-        mapper.mapStatement(stmt, object);
-    }
 }

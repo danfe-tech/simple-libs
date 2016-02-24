@@ -13,23 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tech.danfe.simplelibs.simplejdbc;
+package tech.danfe.simplelibs.simplejdbc.core;
 
-import java.sql.ResultSet;
-import tech.danfe.simplelibs.simplejdbc.core.ResultSetUtils;
-import tech.danfe.simplelibs.simplejdbc.mapper.RowMapper;
+import java.sql.Connection;
 
 /**
  *
  * @author Suraj Chhetry
  */
-public class SongMapper implements RowMapper<Song> {
+public class ConnectionManager {
 
-    @Override
-    public Song mapRow(ResultSet resultSet) {
-        return new Song(ResultSetUtils.getString(resultSet, "song_key", null), ResultSetUtils.getString(resultSet, "filename", null), ResultSetUtils.getDouble(resultSet, "price", 0), ResultSetUtils.getString(resultSet, "title", null));
+    private Connection connection;
+
+    public ConnectionManager(Connection connection) {
+        this.connection = connection;
     }
 
-    
+    public Connection getConnection() {
+        return connection;
+    }
 
 }

@@ -15,11 +15,26 @@
  */
 package tech.danfe.simplelibs.simplejdbc.core;
 
+import java.util.ArrayList;
+import java.util.List;
+import tech.danfe.simplelibs.simplejdbc.mapper.RowMapper;
+
 /**
  *
  * @author Suraj Chhetry
  */
-public interface JdbcAware {
+public interface NamedParameterJdbcOperations {
 
-    public void setJdbcHelper(JdbcTemplate jdbc);
+    public int executeUpdate(String sql, List<QueryParameter> parameters);
+
+    public <T> ArrayList<T> queryForList(String sql, final RowMapper<T> mapper, List<QueryParameter> parameters);
+
+    public <T> T queryForObject(String sql, final RowMapper<T> mapper, List<QueryParameter> parameters);
+
+    public String queryForString(String sql, List<QueryParameter> parameters);
+
+    public List<String> queryForStringList(String sql, List<QueryParameter> parameters);
+
+    public int queryForInt(String sql, QueryParameter... parameters);
+
 }

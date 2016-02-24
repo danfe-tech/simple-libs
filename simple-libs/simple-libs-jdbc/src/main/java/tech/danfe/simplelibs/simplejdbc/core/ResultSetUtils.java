@@ -24,12 +24,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import tech.danfe.simplelibs.simplejdbc.mapper.RowMapper;
 
 /**
  *
  * @author Suraj Chhetry
  */
 public class ResultSetUtils {
+
+    public static <T> T processResultSet(ResultSet resultSet, final RowMapper<T> rowMapper) {
+        return rowMapper.mapRow(resultSet);
+    }
 
     /**
      * *
@@ -58,9 +63,9 @@ public class ResultSetUtils {
             }
             return columns;
         } catch (SQLException ex) {
-            Logger.getLogger(JdbcUtil.class.getName()).log(Level.SEVERE, null, ex);
+            throw new DataAccessException(ex);
         }
-        return Collections.EMPTY_LIST;
+
     }
 
     public static boolean doesColumnExists(ResultSet resultSet, String columnName) {

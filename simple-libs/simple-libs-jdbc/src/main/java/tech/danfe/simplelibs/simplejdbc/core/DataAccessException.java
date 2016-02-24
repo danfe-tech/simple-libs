@@ -15,33 +15,18 @@
  */
 package tech.danfe.simplelibs.simplejdbc.core;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Iterator;
-
-/***
- * 
+/**
+ *
  * @author Suraj Chhetry
- * 
  */
-public abstract class IteratorBatchFeeder<T> implements BatchFeeder {
+public class DataAccessException extends RuntimeException {
 
-    Iterator<T> iterator;
-
-    public IteratorBatchFeeder(Iterator<T> i) {
-        iterator = i;
+    public DataAccessException(Throwable cause) {
+        super(cause);
     }
 
-    @Override
-    public boolean hasNext() {
-        return iterator.hasNext();
+    public DataAccessException(String message) {
+        super(message);
     }
 
-    @Override
-    public boolean feedStatement(PreparedStatement stmt) throws SQLException {
-        feedStatement(stmt, iterator.next());
-        return true;
-    }
-
-    public abstract void feedStatement(PreparedStatement stmt, T object) throws SQLException;
 }

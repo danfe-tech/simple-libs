@@ -15,15 +15,22 @@
  */
 package tech.danfe.simplelibs.simplejdbc.core;
 
-import java.sql.SQLException;
+import java.sql.Connection;
 
 /**
- * 
+ *
  * @author Suraj Chhetry
- * 
  */
-public interface NamedStatementMapper<T> {
+public class TransactionContext {
 
-    public void mapStatement(NamedParameterStatement stmt, T object) throws SQLException;
+    private final Connection connection;
+
+    public TransactionContext(Connection connection) {
+        this.connection = connection;
+    }
+
+    public Connection getConnection() {
+        return connection;
+    }
 
 }

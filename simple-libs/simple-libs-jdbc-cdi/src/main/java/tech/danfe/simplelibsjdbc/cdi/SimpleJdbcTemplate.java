@@ -13,11 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tech.danfe.simplelibs.simplejdbc.core;
+package tech.danfe.simplelibsjdbc.cdi;
+
+import java.lang.annotation.ElementType;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import javax.inject.Qualifier;
+import java.lang.annotation.Target;
 
 /**
  *
  * @author Suraj Chhetry
  */
-public class NoResultException extends RuntimeException {
+@Qualifier
+@Retention(RetentionPolicy.RUNTIME)
+@Target({METHOD, FIELD, ElementType.PARAMETER, TYPE})
+public @interface SimpleJdbcTemplate {
+
 }

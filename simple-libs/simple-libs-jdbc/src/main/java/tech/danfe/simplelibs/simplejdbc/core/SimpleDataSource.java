@@ -23,12 +23,9 @@ import java.io.PrintWriter;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.logging.Logger;
 
+
 /**
- * This is a simplest implementation of a java.sql.DataSource interface. It is
- * highly recommended to use another datasource implementation from your
- * database or application server vendor instead of this one.
- *
- * This class is only a small utility.
+ * This is a simplest implementation of a java.sql.DataSource interface.
  *
  * @author Suraj Chhetry
  */
@@ -48,7 +45,7 @@ public class SimpleDataSource implements DataSource {
         try {
             Class.forName(driverClassName.trim());
         } catch (ClassNotFoundException e) {
-            throw new JdbcException("Could not load JDBC Driver class " + driverClassName, e);
+            throw new DataAccessException(e);
         }
     }
 

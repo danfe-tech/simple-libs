@@ -13,23 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tech.danfe.simplelibs.simplejdbc;
+package tech.danfe.simplelibsjdbc.cdi;
 
-import java.sql.ResultSet;
-import tech.danfe.simplelibs.simplejdbc.core.ResultSetUtils;
-import tech.danfe.simplelibs.simplejdbc.mapper.RowMapper;
+import tech.danfe.simplelibs.simplejdbc.core.JdbcTemplate;
 
 /**
  *
  * @author Suraj Chhetry
  */
-public class SongMapper implements RowMapper<Song> {
+public class JdbcTemplateWrapper {
 
-    @Override
-    public Song mapRow(ResultSet resultSet) {
-        return new Song(ResultSetUtils.getString(resultSet, "song_key", null), ResultSetUtils.getString(resultSet, "filename", null), ResultSetUtils.getDouble(resultSet, "price", 0), ResultSetUtils.getString(resultSet, "title", null));
+    private JdbcTemplate template;
+
+    public JdbcTemplateWrapper() {
     }
 
-    
+    public JdbcTemplateWrapper(JdbcTemplate template) {
+        this.template = template;
+    }
+
+    public JdbcTemplate getTemplate() {
+        return template;
+    }
+
+    public void setTemplate(JdbcTemplate template) {
+        this.template = template;
+    }
 
 }

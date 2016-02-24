@@ -8,6 +8,7 @@
     <modules>
         <module>simple-libs-core</module>
         <module>simple-libs-jdbc</module>
+        <module>simple-libs-jdbc-cdi</module>
     </modules>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A collection of daily useful utility functions</description>

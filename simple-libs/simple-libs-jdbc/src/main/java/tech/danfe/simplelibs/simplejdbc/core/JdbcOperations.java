@@ -15,24 +15,27 @@
  */
 package tech.danfe.simplelibs.simplejdbc.core;
 
+import java.util.ArrayList;
+import java.util.List;
+import tech.danfe.simplelibs.simplejdbc.mapper.RowMapper;
+
 /**
- * 
+ *
  * @author Suraj Chhetry
  */
-public class JdbcException extends RuntimeException {
+public interface JdbcOperations {
 
-    public JdbcException() {
-    }
+    public int executeUpdate(String sql);
 
-    public JdbcException(String message) {
-        super(message);
-    }
+    public <T> ArrayList<T> queryForList(String sql, final RowMapper<T> mapper);
 
-    public JdbcException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    public <T> T queryForObject(String sql, final RowMapper<T> mapper);
 
-    public JdbcException(Throwable cause) {
-        super(cause);
-    }
+    public String queryForString(String sql);
+
+    public List<String> queryForStringList(String sql);
+
+    public int queryForInt(String sql);
+
+    public List<Integer> queryForIntList(String sql);
 }

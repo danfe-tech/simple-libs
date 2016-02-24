@@ -15,6 +15,8 @@
  */
 package tech.danfe.simplelibs.simplejdbc;
 
+import java.util.Date;
+
 /**
  *
  * @author Suraj Chhetry
@@ -25,6 +27,11 @@ public class Song {
     private final String fileName;
     private final double price;
     private final String title;
+    private Date createdOn;
+
+    public Date getCreated() {
+        return new Date();
+    }
 
     public Song(String songKey, String fileName, double price, String title) {
         this.songKey = songKey;
