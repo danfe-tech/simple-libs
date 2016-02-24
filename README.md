@@ -24,7 +24,7 @@ Step 2 : Add core dependency
       <version>0.1.0</version>
     </dependency>
 ```
-Step 3 : Add jdbc module dependency
+Step 3 ( optional ) : Add jdbc module dependency
 ```xml
     <dependency>
         <groupId>tech.danfe</groupId>
@@ -32,11 +32,20 @@ Step 3 : Add jdbc module dependency
         <version>0.1.0</version>
     </dependency>
 ```
+Step 4 ( optional ) : Add cdi supported jdbc module
+```xml
+    <dependency>
+        <groupId>tech.danfe</groupId>
+        <artifactId>simple-libs-jdbc-cdi</artifactId>
+        <version>0.1.0</version>
+    </dependency>
+```
+
 
 ## API
 
 ## Examples 
-```xml
+```java
 // simple-libs-jdbc 
  SimpleDataSource dataSource = new SimpleDataSource(JDBC_DRIVER, DB_URL, USER, PASS);
  JdbcTemplate jdbcHelper = new JdbcTemplate(dataSource);
@@ -55,6 +64,29 @@ Step 3 : Add jdbc module dependency
     }
 }
 ```
+
+## Using JDBC CDI Module
+1. Implement DataSourceConfig 
+```java
+    public class SimpleDataSource implement DataSourceConfig
+    {
+        @Resource(mapped="my-jndi-datasource")
+        private DataSource datasource;
+        @Override
+        public DataSource getDataSource(){
+            return datasource;
+        }
+    }
+    //while injecting
+    @Inject
+    @SimpleJdbcTemplate
+    private JdbcTemplateWrapper wrapper;
+    
+    public void query(){
+        this.wrapper.getTemplate().queryForXXX();
+    }
+```
+
 
 
 
