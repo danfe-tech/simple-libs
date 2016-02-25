@@ -3,7 +3,7 @@ A collection of daily useful utility classes for different purpose.
 
 ## Current Version
 ```xml
-     <version>0.2.0</version>
+     <version>0.2.1</version>
 ```
 
 ## Maven dependency
@@ -83,9 +83,36 @@ Step 4 ( optional ) : Add cdi supported jdbc module
     jdbcTemplate.commitTransaction()   // To commit transaction
     jdbcTemplate.rollbackTransaction() // To rollback transaction
 ```
+## Using JDBC Batch
+```java
+     Song song = new Song("12478", "test Name", 10, "Named param");
+     String sql = "Insert into songs (song_key,filename,title,price,created,note) values           (:songKey,:fileName,:title,:price,:created,:note)";
+     List<BatchParameter> parameters = new ArrayList<>();
+     // first batch parameter
+     BatchParameter parameter = new BatchParameter();
+     parameter.addParameter(new QueryParameter("songKey", "4502"));
+     parameter.addParameter(new QueryParameter("fileName", song.getFileName()));
+     parameter.addParameter(new QueryParameter("title", song.getTitle()));
+     parameter.addParameter(new QueryParameter("price", song.getPrice()));
+     parameter.addParameter(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+     parameter.addParameter(new QueryParameter("note", "test"));
+     parameters.add(parameter);
+
+      // second batch parameter
+     BatchParameter parameterTwo = new BatchParameter();
+     parameterTwo.addParameter(new QueryParameter("songKey", song.getSongKey()));
+     parameterTwo.addParameter(new QueryParameter("fileName", song.getFileName()));
+     parameterTwo.addParameter(new QueryParameter("title", song.getTitle()));
+     parameterTwo.addParameter(new QueryParameter("price", song.getPrice()));
+     parameterTwo.addParameter(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+     parameterTwo.addParameter(new QueryParameter("note", "test"));
+     parameters.add(parameterTwo);
+
+     int[] result = this.jdbcTemplate.executeBatch(sql, parameters);
+```
 
 ## Using JDBC CDI Module
-1. Implement DataSourceConfig 
+ 1. Implement DataSourceConfig 
 ```java
     public class SimpleDataSource implement DataSourceConfig
     {
@@ -97,7 +124,7 @@ Step 4 ( optional ) : Add cdi supported jdbc module
         }
     }
 ```
-2. Inject as below 
+ 2. Inject as below 
 ```java
     @Inject
     @SimpleJdbcTemplate
