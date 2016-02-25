@@ -26,7 +26,8 @@ import tech.danfe.simplelibs.simplejdbc.core.DBUtils;
 import tech.danfe.simplelibs.simplejdbc.core.JdbcTemplate;
 import tech.danfe.simplelibs.simplejdbc.core.QueryParameter;
 import tech.danfe.simplelibs.simplejdbc.core.SimpleDataSource;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import tech.danfe.simplelibs.simplejdbc.core.BatchParameter;
 
 /**
  *
@@ -74,6 +75,11 @@ public class JdbcTemplateTest {
         this.jdbcTemplate.executeUpdate(sql, parameters);
         List<Song> songs = jdbcTemplate.queryForList("select song_key,filename from songs", new SongMapper());
         assertEquals(1, songs.size());
+
+        List<QueryParameter> queryParameters = new ArrayList<>();
+        queryParameters.add(new QueryParameter("title", song.getTitle()));
+        Song song1 = jdbcTemplate.queryForObject("Select *  from songs where title=:title", new SongMapper(), queryParameters);
+        assertNotNull(song1);
     }
 
     @Test
@@ -177,4 +183,34 @@ public class JdbcTemplateTest {
         List<Song> songs = jdbcTemplate.queryForList("select song_key,filename from songs", new SongMapper());
         assertEquals(1, songs.size());
     }
+
+    @Test
+    public void test_batch_insert() {
+        Song song = new Song("12478", "test Name", 10, "Named param");
+        String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
+        List<BatchParameter> parameters = new ArrayList<>();
+        // first batch parameter
+        BatchParameter parameter = new BatchParameter();
+        parameter.addParameter(new QueryParameter("songKey", "4502"));
+        parameter.addParameter(new QueryParameter("fileName", song.getFileName()));
+        parameter.addParameter(new QueryParameter("title", song.getTitle()));
+        parameter.addParameter(new QueryParameter("price", song.getPrice()));
+        parameter.addParameter(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+        parameter.addParameter(new QueryParameter("note", "test"));
+        parameters.add(parameter);
+
+        // second batch parameter
+        BatchParameter parameterTwo = new BatchParameter();
+        parameterTwo.addParameter(new QueryParameter("songKey", song.getSongKey()));
+        parameterTwo.addParameter(new QueryParameter("fileName", song.getFileName()));
+        parameterTwo.addParameter(new QueryParameter("title", song.getTitle()));
+        parameterTwo.addParameter(new QueryParameter("price", song.getPrice()));
+        parameterTwo.addParameter(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+        parameterTwo.addParameter(new QueryParameter("note", "test"));
+        parameters.add(parameterTwo);
+
+        int[] result = this.jdbcTemplate.executeBatch(sql, parameters);
+        assertEquals(2, result.length);
+    }
+
 }

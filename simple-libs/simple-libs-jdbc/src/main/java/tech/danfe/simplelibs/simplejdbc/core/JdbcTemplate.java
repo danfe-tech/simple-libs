@@ -29,7 +29,7 @@ import tech.danfe.simplelibs.simplejdbc.mapper.RowMapper;
  *
  * @author Suraj Chhetry
  */
-public class JdbcTemplate implements NamedParameterJdbcOperations, JdbcOperations {
+public class JdbcTemplate implements NamedParameterJdbcOperations, JdbcOperations, AutoCloseable {
 
     private final int DEFAULT_INDEX = 1;
 
@@ -93,6 +93,20 @@ public class JdbcTemplate implements NamedParameterJdbcOperations, JdbcOperation
     }
 
     @Override
+    public void close() throws Exception {
+        Connection connection = this.getConnection();
+        if (!connection.isClosed()) {
+            if (connection.getAutoCommit()) {
+                connection.close();
+            } else {
+                this.rollbackTransaction();
+                connection.close();
+            }
+        }
+
+    }
+
+    @Override
     public int executeUpdate(String sql) {
         try {
             Connection connection = this.getConnection();
@@ -109,6 +123,13 @@ public class JdbcTemplate implements NamedParameterJdbcOperations, JdbcOperation
         Connection connection = this.getConnection();
         try (MappedPreparedStatement ps = new MappedPreparedStatement(connection, sql, parameters)) {
             return ps.executeUpdate();
+        }
+    }
+
+    public int[] executeBatch(String sql, List<BatchParameter> parameters) {
+        Connection connection = this.getConnection();
+        try (BatchStatement ps = new BatchStatement(connection, sql, parameters)) {
+            return ps.executeBatch();
         }
     }
 
@@ -151,7 +172,11 @@ public class JdbcTemplate implements NamedParameterJdbcOperations, JdbcOperation
         try (
                 MappedPreparedStatement ps = new MappedPreparedStatement(connection, sql, parameters);
                 ResultSet rs = ps.executeQuery()) {
-            return ResultSetUtils.processResultSet(rs, mapper);
+            if (rs.next()) {
+                return ResultSetUtils.processResultSet(rs, mapper);
+            }
+            return null;
+
         } catch (SQLException ex) {
             throw new DataAccessException(ex);
         }
@@ -163,7 +188,11 @@ public class JdbcTemplate implements NamedParameterJdbcOperations, JdbcOperation
         Connection connection = this.getConnection();
         try (PreparedStatement ps = connection.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
-            return ResultSetUtils.processResultSet(rs, mapper);
+            if (rs.next()) {
+                return ResultSetUtils.processResultSet(rs, mapper);
+            }
+            return null;
+
         } catch (SQLException ex) {
             throw new DataAccessException(ex);
         }
@@ -174,7 +203,10 @@ public class JdbcTemplate implements NamedParameterJdbcOperations, JdbcOperation
         Connection connection = this.getConnection();
         try (PreparedStatement ps = connection.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
-            return rs.getString(DEFAULT_INDEX);
+            if (rs.next()) {
+                return rs.getString(DEFAULT_INDEX);
+            }
+            return null;
         } catch (SQLException ex) {
             throw new DataAccessException(ex);
         }
@@ -186,7 +218,10 @@ public class JdbcTemplate implements NamedParameterJdbcOperations, JdbcOperation
         Connection connection = this.getConnection();
         try (MappedPreparedStatement ps = new MappedPreparedStatement(connection, sql, parameters);
                 ResultSet rs = ps.executeQuery()) {
-            return rs.getString(DEFAULT_INDEX);
+            if (rs.next()) {
+                return rs.getString(DEFAULT_INDEX);
+            }
+            return null;
         } catch (SQLException ex) {
             throw new DataAccessException(ex);
         }
@@ -227,11 +262,14 @@ public class JdbcTemplate implements NamedParameterJdbcOperations, JdbcOperation
     }
 
     @Override
-    public int queryForInt(String sql) {
+    public Integer queryForInt(String sql) {
         Connection connection = this.getConnection();
         try (PreparedStatement ps = connection.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
-            return rs.getInt(DEFAULT_INDEX);
+            if (rs.next()) {
+                return rs.getInt(DEFAULT_INDEX);
+            }
+            return null;
         } catch (SQLException ex) {
             throw new DataAccessException(ex);
         }
@@ -256,11 +294,14 @@ public class JdbcTemplate implements NamedParameterJdbcOperations, JdbcOperation
     }
 
     @Override
-    public int queryForInt(String sql, QueryParameter... parameters) {
+    public Integer queryForInt(String sql, QueryParameter... parameters) {
         Connection connection = this.getConnection();
         try (MappedPreparedStatement ps = new MappedPreparedStatement(connection, sql, Arrays.asList(parameters));
                 ResultSet rs = ps.executeQuery()) {
-            return rs.getInt(DEFAULT_INDEX);
+            if (rs.next()) {
+                return rs.getInt(DEFAULT_INDEX);
+            }
+            return null;
         } catch (SQLException ex) {
             throw new DataAccessException(ex);
         }

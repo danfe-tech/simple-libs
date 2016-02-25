@@ -15,26 +15,17 @@
  */
 package tech.danfe.simplelibs.simplejdbc.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import tech.danfe.simplelibs.simplejdbc.mapper.RowMapper;
+import java.sql.PreparedStatement;
 
 /**
  *
  * @author Suraj Chhetry
  */
-public interface NamedParameterJdbcOperations {
+public interface BatchOperation {
 
-    public int executeUpdate(String sql, List<QueryParameter> parameters);
-
-    public <T> ArrayList<T> queryForList(String sql, final RowMapper<T> mapper, List<QueryParameter> parameters);
-
-    public <T> T queryForObject(String sql, final RowMapper<T> mapper, List<QueryParameter> parameters);
-
-    public String queryForString(String sql, List<QueryParameter> parameters);
-
-    public List<String> queryForStringList(String sql, List<QueryParameter> parameters);
-
-    public Integer queryForInt(String sql, QueryParameter... parameters);
-
+    /**
+     * @see PreparedStatement#executeBatch()
+     * @return
+     */
+    public int[] executeBatch();
 }

@@ -35,7 +35,7 @@ public interface JdbcOperations {
 
     public List<String> queryForStringList(String sql);
 
-    public int queryForInt(String sql);
+    public Integer queryForInt(String sql);
 
     public List<Integer> queryForIntList(String sql);
 }

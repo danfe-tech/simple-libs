@@ -115,7 +115,7 @@ public class ResultSetUtils {
                     return resultSet.getInt(columnLabel);
                 }
                 if (type == long.class) {
-                    return resultSet.getInt(columnLabel);
+                    return resultSet.getLong(columnLabel);
                 }
                 if (type == float.class) {
                     return resultSet.getFloat(columnLabel);

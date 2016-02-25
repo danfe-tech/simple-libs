@@ -30,6 +30,4 @@ public class SongMapper implements RowMapper<Song> {
         return new Song(ResultSetUtils.getString(resultSet, "song_key", null), ResultSetUtils.getString(resultSet, "filename", null), ResultSetUtils.getDouble(resultSet, "price", 0), ResultSetUtils.getString(resultSet, "title", null));
     }
 
-    
-
 }
