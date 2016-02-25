@@ -50,7 +50,7 @@ public class BatchStatement implements AutoCloseable, BatchOperation {
     private void prepareSqlStatement() {
         for (BatchParameter bp : this.parameters) {
             for (int index = 0; index < bp.size(); index++) {
-                this.sql = sql.replace(":" + bp.get(index).getName(), "?");
+                this.sql = sql.replace("\\b:" + bp.get(index).getName()+"\\b", "?");
             }
         }
     }

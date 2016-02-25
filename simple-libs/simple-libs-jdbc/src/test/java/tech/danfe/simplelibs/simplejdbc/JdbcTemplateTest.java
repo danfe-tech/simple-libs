@@ -187,13 +187,13 @@ public class JdbcTemplateTest {
     @Test
     public void test_batch_insert() {
         Song song = new Song("12478", "test Name", 10, "Named param");
-        String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
+        String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:fileName12,:price,:created,:note)";
         List<BatchParameter> parameters = new ArrayList<>();
         // first batch parameter
         BatchParameter parameter = new BatchParameter();
         parameter.addParameter(new QueryParameter("songKey", "4502"));
         parameter.addParameter(new QueryParameter("fileName", song.getFileName()));
-        parameter.addParameter(new QueryParameter("title", song.getTitle()));
+        parameter.addParameter(new QueryParameter("fileName12", song.getTitle()));
         parameter.addParameter(new QueryParameter("price", song.getPrice()));
         parameter.addParameter(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
         parameter.addParameter(new QueryParameter("note", "test"));
@@ -203,7 +203,7 @@ public class JdbcTemplateTest {
         BatchParameter parameterTwo = new BatchParameter();
         parameterTwo.addParameter(new QueryParameter("songKey", song.getSongKey()));
         parameterTwo.addParameter(new QueryParameter("fileName", song.getFileName()));
-        parameterTwo.addParameter(new QueryParameter("title", song.getTitle()));
+        parameterTwo.addParameter(new QueryParameter("fileName12", song.getTitle()));
         parameterTwo.addParameter(new QueryParameter("price", song.getPrice()));
         parameterTwo.addParameter(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
         parameterTwo.addParameter(new QueryParameter("note", "test"));

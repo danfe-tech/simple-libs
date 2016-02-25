@@ -52,16 +52,23 @@ public class MappedPreparedStatement implements AutoCloseable {
     private void fillParameter() {
         try {
             for (int index = 0; index < parameters.size(); index++) {
-                this.sql = sql.replace(":" + parameters.get(index).getName(), "?");
+                this.sql = sql.replace("\\b:" + parameters.get(index).getName() + "\\b", "?");
             }
             statement = connection.prepareStatement(this.sql);
             for (int index = 1; index <= parameters.size(); index++) {
                 QueryParameter parameter = parameters.get(index - 1);
+
+                if (parameter.getValue() == null) {
+                    statement.setObject(index, parameter.getValue());
+                    continue;
+                }
                 if (parameter.getType() == QueryParameter.ParameterType.Object) {
                     statement.setObject(index, parameter.getValue());
                 }
                 if (parameter.getType() == QueryParameter.ParameterType.Date) {
-                    statement.setDate(index, new java.sql.Date(((java.util.Date) parameter.getValue()).getTime()));
+                    if (parameter.getValue() != null) {
+                        statement.setDate(index, new java.sql.Date(((java.util.Date) parameter.getValue()).getTime()));
+                    }
                 }
             }
 
