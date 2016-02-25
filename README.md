@@ -56,14 +56,14 @@ Step 4 ( optional ) : Add cdi supported jdbc module
  JdbcTemplate jdbcHelper = new JdbcTemplate(dataSource);
  Song song = new Song("12478", "test Name", 10, "Named param");
         String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
-        List<QueryParameter> parameters = new ArrayList<>();
-        parameters.add(new QueryParameter("songKey", song.getSongKey()));
-        parameters.add(new QueryParameter("fileName", song.getFileName()));
-        parameters.add(new QueryParameter("title", song.getTitle()));
-        parameters.add(new QueryParameter("price", song.getPrice()));
-        parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
-        parameters.add(new QueryParameter("note", "test"));
-        this.jdbcTemplate.executeUpdate(sql, parameters);
+ List<QueryParameter> parameters = new ArrayList<>();
+ parameters.add(new QueryParameter("songKey", song.getSongKey()));
+ parameters.add(new QueryParameter("fileName", song.getFileName()));
+ parameters.add(new QueryParameter("title", song.getTitle()));
+ parameters.add(new QueryParameter("price", song.getPrice()));
+ parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+ parameters.add(new QueryParameter("note", "test"));
+ this.jdbcTemplate.executeUpdate(sql, parameters);
         
  //Query for List
  List<Song> songs = jdbcTemplate.queryForList("select song_key,filename from songs", new SongMapper());
