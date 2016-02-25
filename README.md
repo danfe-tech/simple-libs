@@ -1,6 +1,11 @@
 # simple-libs
 A collection of daily useful utility classes for different purpose.
 
+## Current Version
+```xml
+     <version>0.2.0</version>
+```
+
 ## Maven dependency
 
 Step 1 : Add repository 
@@ -21,7 +26,7 @@ Step 2 : Add core dependency
     <dependency>
       <groupId>tech.danfe</groupId>
       <artifactId>simple-libs-core</artifactId>
-      <version>0.1.0</version>
+      <version>Current Version</version>
     </dependency>
 ```
 Step 3 ( optional ) : Add jdbc module dependency
@@ -29,7 +34,7 @@ Step 3 ( optional ) : Add jdbc module dependency
     <dependency>
         <groupId>tech.danfe</groupId>
         <artifactId>simple-libs-jdbc</artifactId>
-        <version>0.1.0</version>
+        <version>Current Version</version>
     </dependency>
 ```
 Step 4 ( optional ) : Add cdi supported jdbc module
@@ -37,7 +42,7 @@ Step 4 ( optional ) : Add cdi supported jdbc module
     <dependency>
         <groupId>tech.danfe</groupId>
         <artifactId>simple-libs-jdbc-cdi</artifactId>
-        <version>0.1.0</version>
+       <version>Current Version</version>
     </dependency>
 ```
 
@@ -50,11 +55,18 @@ Step 4 ( optional ) : Add cdi supported jdbc module
  SimpleDataSource dataSource = new SimpleDataSource(JDBC_DRIVER, DB_URL, USER, PASS);
  JdbcTemplate jdbcHelper = new JdbcTemplate(dataSource);
  Song song = new Song("12478", "test Name", 10, "Named param");
- String sql = "Insert into songs (song_key,filename,title,price) values (:songKey,:fileName,:title,:price)";
- jdbcHelper.execute(sql, ObjectUtils.toMap(song));
-
+        String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
+        List<QueryParameter> parameters = new ArrayList<>();
+        parameters.add(new QueryParameter("songKey", song.getSongKey()));
+        parameters.add(new QueryParameter("fileName", song.getFileName()));
+        parameters.add(new QueryParameter("title", song.getTitle()));
+        parameters.add(new QueryParameter("price", song.getPrice()));
+        parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+        parameters.add(new QueryParameter("note", "test"));
+        this.jdbcTemplate.executeUpdate(sql, parameters);
+        
  //Query for List
- List<Song> songs = jdbcHelper.queryForList("select * from songs", new SongMapper());
+ List<Song> songs = jdbcTemplate.queryForList("select song_key,filename from songs", new SongMapper());
 
  // Mapper
  public class SongMapper implements RowMapper<Song> {
@@ -63,6 +75,13 @@ Step 4 ( optional ) : Add cdi supported jdbc module
         return new Song(ResultSetUtils.getString(resultSet, "song_key", null), ResultSetUtils.getString(resultSet, "filename", null), ResultSetUtils.getDouble(resultSet, "price", 0), ResultSetUtils.getString(resultSet, "title", null));
     }
 }
+```
+
+## Using JDBC CDI Module
+```java
+    jdbcTemplate.beginTransaction()    // To begin transaction
+    jdbcTemplate.commitTransaction()   // To commit transaction
+    jdbcTemplate.rollbackTransaction() // To rollback transaction
 ```
 
 ## Using JDBC CDI Module
@@ -77,7 +96,9 @@ Step 4 ( optional ) : Add cdi supported jdbc module
             return datasource;
         }
     }
-    //while injecting
+```
+2. Inject as below 
+```java
     @Inject
     @SimpleJdbcTemplate
     private JdbcTemplateWrapper wrapper;
