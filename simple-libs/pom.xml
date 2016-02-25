@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>tech.danfe</groupId>
     <artifactId>simple-libs</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <packaging>pom</packaging>
     <modules>
         <module>simple-libs-core</module>
@@ -90,7 +90,7 @@
             <plugin>  
                 <groupId>org.codehaus.mojo</groupId>  
                 <artifactId>versions-maven-plugin</artifactId>  
-                <version>2.1</version>  
+                <version>2.2</version>  
             </plugin>
         </plugins>
     </build>
