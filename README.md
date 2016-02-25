@@ -55,7 +55,7 @@ Step 4 ( optional ) : Add cdi supported jdbc module
  SimpleDataSource dataSource = new SimpleDataSource(JDBC_DRIVER, DB_URL, USER, PASS);
  JdbcTemplate jdbcHelper = new JdbcTemplate(dataSource);
  Song song = new Song("12478", "test Name", 10, "Named param");
-        String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
+ String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
  List<QueryParameter> parameters = new ArrayList<>();
  parameters.add(new QueryParameter("songKey", song.getSongKey()));
  parameters.add(new QueryParameter("fileName", song.getFileName()));
@@ -77,7 +77,7 @@ Step 4 ( optional ) : Add cdi supported jdbc module
 }
 ```
 
-## Using JDBC CDI Module
+## Using Transaction
 ```java
     jdbcTemplate.beginTransaction()    // To begin transaction
     jdbcTemplate.commitTransaction()   // To commit transaction
