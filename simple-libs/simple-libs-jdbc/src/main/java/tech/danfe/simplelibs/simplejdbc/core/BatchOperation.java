@@ -29,5 +29,5 @@ public interface BatchOperation {
      */
     public int[] executeBatch();
     
-    public int[] executeBatch(int batchSize);
+    public long executeBatch(int batchSize);
 }

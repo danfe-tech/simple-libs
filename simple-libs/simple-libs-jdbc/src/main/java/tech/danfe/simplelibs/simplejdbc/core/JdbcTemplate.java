@@ -133,6 +133,13 @@ public class JdbcTemplate implements NamedParameterJdbcOperations, JdbcOperation
         }
     }
 
+    public long executeBatch(String sql, List<BatchParameter> parameters, int batchSize) {
+        Connection connection = this.getConnection();
+        try (BatchStatement ps = new BatchStatement(connection, sql, parameters)) {
+            return ps.executeBatch(batchSize);
+        }
+    }
+
     @Override
     public <T> ArrayList<T> queryForList(String sql, final RowMapper<T> mapper) {
         final ArrayList<T> list = new ArrayList<>();

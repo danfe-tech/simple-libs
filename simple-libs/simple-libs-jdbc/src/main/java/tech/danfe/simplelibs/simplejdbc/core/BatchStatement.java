@@ -19,7 +19,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -89,12 +92,18 @@ public class BatchStatement implements AutoCloseable, BatchOperation {
             this.connection.setAutoCommit(true);
             return executeBatchResult;
         } catch (SQLException ex) {
-            throw new DataAccessException(ex);
+            try {
+                this.connection.rollback();
+                throw new DataAccessException(ex);
+            } catch (SQLException ex1) {
+                throw new DataAccessException(ex);
+            }
         }
     }
 
     @Override
-    public int[] executeBatch(int batchSize) {
+    public long executeBatch(int batchSize) {
+        long total = 0;
         try {
             int[] executeBatchResult = null;
             statement = connection.prepareStatement(NamedStatementParserUtils.parseNamedSql(this.sql));
@@ -108,14 +117,26 @@ public class BatchStatement implements AutoCloseable, BatchOperation {
                 statement.addBatch();
                 if (counter % batchSize == 0) {
                     executeBatchResult = this.statement.executeBatch();
+                    total += executeBatchResult.length;
                     this.connection.commit();
                 }
             }
-            this.connection.commit();
+            //check remaining or not
+            if (total < counter) {
+                //execute remaining
+                executeBatchResult = this.statement.executeBatch();
+                total += executeBatchResult.length;
+                this.connection.commit();
+            }
             this.connection.setAutoCommit(true);
-            return executeBatchResult;
+            return total;
         } catch (SQLException ex) {
-            throw new DataAccessException(ex);
+            try {
+                this.connection.rollback();
+                throw new DataAccessException(ex);
+            } catch (SQLException ex1) {
+                throw new DataAccessException(ex);
+            }
         }
     }
 

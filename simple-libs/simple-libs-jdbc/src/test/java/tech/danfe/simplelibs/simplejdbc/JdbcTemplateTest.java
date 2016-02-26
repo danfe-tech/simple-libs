@@ -62,7 +62,7 @@ public class JdbcTemplateTest {
     }
 
     @Test
-    public void test_insert() {
+    public void shouldinsert() {
         Song song = new Song("12478", "test Name", 10, "Named param");
         String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:songKey12,:title,:price,:created,:note)";
         List<QueryParameter> parameters = new ArrayList<>();
@@ -83,7 +83,7 @@ public class JdbcTemplateTest {
     }
 
     @Test
-    public void test_transaction_with_rollback() {
+    public void shouldWorkTransactionWithRollback() {
         Song song = new Song("12478", "test Name", 10, "Named param");
         String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
         List<QueryParameter> parameters = new ArrayList<>();
@@ -101,7 +101,7 @@ public class JdbcTemplateTest {
     }
 
     @Test
-    public void test_transaction_with_commit() {
+    public void shouldWorkTransactionWithCommit() {
         Song song = new Song("12478", "test Name", 10, "Named param");
         String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
         List<QueryParameter> parameters = new ArrayList<>();
@@ -118,7 +118,7 @@ public class JdbcTemplateTest {
         assertEquals(1, songs.size());
     }
 
-    private void insert_only() {
+    private void doSimpleiInsertOnly() {
         Song song = new Song("12478233", "test Name", 10, "Named param");
         String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
         List<QueryParameter> parameters = new ArrayList<>();
@@ -132,7 +132,7 @@ public class JdbcTemplateTest {
 
     }
 
-    private void insert_with_new_datasource() {
+    private void insertWithNewDatasource() {
         JdbcTemplate jdbcTemplate2 = new JdbcTemplate(dataSource);
         Song song = new Song("12478233", "test Name", 10, "Named param");
         String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
@@ -147,7 +147,7 @@ public class JdbcTemplateTest {
     }
 
     @Test
-    public void test_nested_transaction_with_commit() {
+    public void shouldWorkWithNestedTransactionOnCommit() {
         Song song = new Song("12478", "test Name", 10, "Named param");
         String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
         List<QueryParameter> parameters = new ArrayList<>();
@@ -158,7 +158,7 @@ public class JdbcTemplateTest {
         parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
         parameters.add(new QueryParameter("note", "test"));
         this.jdbcTemplate.beginTransaction();
-        this.insert_only();
+        this.doSimpleiInsertOnly();
         this.jdbcTemplate.executeUpdate(sql, parameters);
         this.jdbcTemplate.commitTransaction();
         List<Song> songs = jdbcTemplate.queryForList("select song_key,filename from songs", new SongMapper());
@@ -166,7 +166,7 @@ public class JdbcTemplateTest {
     }
 
     @Test
-    public void test_nested_transaction_with_rollback() {
+    public void shouldWorkWithNestedTransactionOnRollback() {
         Song song = new Song("12478", "test Name", 10, "Named param");
         String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
         List<QueryParameter> parameters = new ArrayList<>();
@@ -177,7 +177,7 @@ public class JdbcTemplateTest {
         parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
         parameters.add(new QueryParameter("note", "test"));
         this.jdbcTemplate.beginTransaction();
-        this.insert_with_new_datasource();
+        this.insertWithNewDatasource();
         this.jdbcTemplate.executeUpdate(sql, parameters);
         this.jdbcTemplate.rollbackTransaction();
         List<Song> songs = jdbcTemplate.queryForList("select song_key,filename from songs", new SongMapper());
@@ -185,7 +185,7 @@ public class JdbcTemplateTest {
     }
 
     @Test
-    public void test_batch_insert() {
+    public void shouldWorkWithBatchInsert() {
         Song song = new Song("12478", "test Name", 10, "Named param");
         String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
         List<BatchParameter> parameters = new ArrayList<>();
@@ -213,4 +213,24 @@ public class JdbcTemplateTest {
         assertEquals(2, result.length);
     }
 
+    @Test
+    public void shouldInsertByBatchSize() {
+        Song song = new Song("12478", "test Name", 10, "Named param");
+        String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
+        List<BatchParameter> parameters = new ArrayList<>();
+
+        for (int i = 0; i < 10000; i++) {
+            BatchParameter parameter = new BatchParameter();
+            parameter.addParameter(new QueryParameter("songKey", System.nanoTime()));
+            parameter.addParameter(new QueryParameter("fileName", song.getFileName()));
+            parameter.addParameter(new QueryParameter("title", song.getTitle()));
+            parameter.addParameter(new QueryParameter("price", song.getPrice()));
+            parameter.addParameter(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+            parameter.addParameter(new QueryParameter("note", null));
+            parameters.add(parameter);
+        }
+
+        long result = this.jdbcTemplate.executeBatch(sql, parameters, 195);
+        assertEquals(10000, result);
+    }
 }
