@@ -54,7 +54,7 @@ public class MappedPreparedStatement implements AutoCloseable {
             for (int index = 0; index < parameters.size(); index++) {
                 this.sql = sql.replace("\\b:" + parameters.get(index).getName() + "\\b", "?");
             }
-            statement = connection.prepareStatement(this.sql);
+            statement = connection.prepareStatement(NamedStatementParserUtils.parseNamedSql(this.sql));
             for (int index = 1; index <= parameters.size(); index++) {
                 QueryParameter parameter = parameters.get(index - 1);
 

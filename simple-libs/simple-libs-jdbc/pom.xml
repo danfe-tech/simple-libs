@@ -4,7 +4,7 @@
     <parent>
         <groupId>tech.danfe</groupId>
         <artifactId>simple-libs</artifactId>
-        <version>0.2.2</version>
+        <version>0.2.3</version>
     </parent>
     <artifactId>simple-libs-jdbc</artifactId>
     <packaging>jar</packaging>
@@ -48,10 +48,15 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>hsqldb</groupId>
+            <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.4</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 </project>

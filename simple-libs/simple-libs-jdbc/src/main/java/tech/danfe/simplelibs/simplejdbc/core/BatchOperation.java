@@ -28,4 +28,6 @@ public interface BatchOperation {
      * @return
      */
     public int[] executeBatch();
+    
+    public int[] executeBatch(int batchSize);
 }

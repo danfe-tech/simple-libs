@@ -18,7 +18,9 @@ package tech.danfe.simplelibs.simplejdbc.core;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  *
@@ -27,15 +29,15 @@ import java.util.List;
 public class BatchStatement implements AutoCloseable, BatchOperation {
 
     private final Connection connection;
-    private String sql;
+    private final String sql;
     private final List<BatchParameter> parameters;
     private PreparedStatement statement = null;
+    private static final Logger LOG = Logger.getLogger(BatchStatement.class.getName());
 
     public BatchStatement(Connection connection, String sql, List<BatchParameter> parameters) {
         this.connection = connection;
         this.sql = sql;
         this.parameters = parameters;
-        this.fillParameter();
     }
 
     @Override
@@ -47,44 +49,70 @@ public class BatchStatement implements AutoCloseable, BatchOperation {
         }
     }
 
-    private void prepareSqlStatement() {
-        for (BatchParameter bp : this.parameters) {
-            for (int index = 0; index < bp.size(); index++) {
-                this.sql = sql.replace("\\b:" + bp.get(index).getName()+"\\b", "?");
-            }
-        }
-    }
-
-    private void fillParameter() {
+    private void fillParameter(BatchParameter bp) {
         try {
-            this.prepareSqlStatement();
-            statement = connection.prepareStatement(this.sql);
-            if (!this.connection.getAutoCommit()) {
-                this.connection.setAutoCommit(false);
-            }
-            for (BatchParameter bp : this.parameters) {
-                for (int index = 1; index < bp.size(); index++) {
-                    QueryParameter parameter = bp.get(index - 1);
+            int currentIndex = 1;
+            for (int index = 0; index < bp.size(); index++) {
+                currentIndex = index + 1;
+                QueryParameter parameter = bp.get(index);
+                if (parameter.getValue() == null) {
+                    statement.setNull(currentIndex, Types.NULL);
+
+                } else {
                     if (parameter.getType() == QueryParameter.ParameterType.Object) {
-                        statement.setObject(index, parameter.getValue());
+                        statement.setObject(currentIndex, parameter.getValue());
                     }
                     if (parameter.getType() == QueryParameter.ParameterType.Date) {
-                        statement.setDate(index, new java.sql.Date(((java.util.Date) parameter.getValue()).getTime()));
+                        statement.setDate(currentIndex, new java.sql.Date(((java.util.Date) parameter.getValue()).getTime()));
                     }
                 }
-                statement.addBatch();
             }
 
         } catch (SQLException exception) {
             throw new DataAccessException(exception);
         }
     }
-    
+
     @Override
     public int[] executeBatch() {
         try {
+            statement = connection.prepareStatement(NamedStatementParserUtils.parseNamedSql(this.sql));
+            if (!this.connection.getAutoCommit()) {
+                this.connection.setAutoCommit(false);
+            }
+            for (BatchParameter bp : this.parameters) {
+                this.fillParameter(bp);
+                statement.addBatch();
+            }
             int[] executeBatchResult = this.statement.executeBatch();
             this.connection.commit();
+            this.connection.setAutoCommit(true);
+            return executeBatchResult;
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex);
+        }
+    }
+
+    @Override
+    public int[] executeBatch(int batchSize) {
+        try {
+            int[] executeBatchResult = null;
+            statement = connection.prepareStatement(NamedStatementParserUtils.parseNamedSql(this.sql));
+            if (!this.connection.getAutoCommit()) {
+                this.connection.setAutoCommit(false);
+            }
+            int counter = 0;
+            for (BatchParameter bp : this.parameters) {
+                counter++;
+                this.fillParameter(bp);
+                statement.addBatch();
+                if (counter % batchSize == 0) {
+                    executeBatchResult = this.statement.executeBatch();
+                    this.connection.commit();
+                }
+            }
+            this.connection.commit();
+            this.connection.setAutoCommit(true);
             return executeBatchResult;
         } catch (SQLException ex) {
             throw new DataAccessException(ex);
