@@ -19,10 +19,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -80,7 +77,7 @@ public class BatchStatement implements AutoCloseable, BatchOperation {
     public int[] executeBatch() {
         try {
             statement = connection.prepareStatement(NamedStatementParserUtils.parseNamedSql(this.sql));
-            if (!this.connection.getAutoCommit()) {
+            if (this.connection.getAutoCommit()) {
                 this.connection.setAutoCommit(false);
             }
             for (BatchParameter bp : this.parameters) {
@@ -107,7 +104,7 @@ public class BatchStatement implements AutoCloseable, BatchOperation {
         try {
             int[] executeBatchResult = null;
             statement = connection.prepareStatement(NamedStatementParserUtils.parseNamedSql(this.sql));
-            if (!this.connection.getAutoCommit()) {
+            if (this.connection.getAutoCommit()) {
                 this.connection.setAutoCommit(false);
             }
             int counter = 0;
