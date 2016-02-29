@@ -106,7 +106,7 @@ public class ResultSetUtils {
                     return resultSet.getByte(columnLabel);
                 }
                 if (type == boolean.class) {
-                    return resultSet.getByte(columnLabel);
+                    return resultSet.getBoolean(columnLabel);
                 }
                 if (type == short.class) {
                     return resultSet.getShort(columnLabel);
