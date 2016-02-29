@@ -3,7 +3,7 @@ A collection of daily useful utility classes for different purpose.
 
 ## Current Version
 ```xml
-     <version>0.2.3</version>
+     <version>0.2.4</version>
 ```
 
 ## Maven dependency
