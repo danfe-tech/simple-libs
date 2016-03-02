@@ -25,16 +25,16 @@ import tech.danfe.simplelibs.simplejdbc.mapper.RowMapper;
  */
 public interface NamedParameterJdbcOperations {
 
-    public int executeUpdate(String sql, List<QueryParameter> parameters);
+    public int executeUpdate(String sql, QueryParameterCollection parameters);
 
-    public <T> ArrayList<T> queryForList(String sql, final RowMapper<T> mapper, List<QueryParameter> parameters);
+    public <T> ArrayList<T> queryForList(String sql, final RowMapper<T> mapper, QueryParameterCollection parameters);
 
-    public <T> T queryForObject(String sql, final RowMapper<T> mapper, List<QueryParameter> parameters);
+    public <T> T queryForObject(String sql, final RowMapper<T> mapper, QueryParameterCollection parameters);
 
-    public String queryForString(String sql, List<QueryParameter> parameters);
+    public String queryForString(String sql, QueryParameterCollection parameters);
 
-    public List<String> queryForStringList(String sql, List<QueryParameter> parameters);
+    public List<String> queryForStringList(String sql, QueryParameterCollection parameters);
 
-    public Integer queryForInt(String sql, QueryParameter... parameters);
+    public Integer queryForInt(String sql, QueryParameterCollection parameters);
 
 }

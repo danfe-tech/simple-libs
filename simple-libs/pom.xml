@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>tech.danfe</groupId>
     <artifactId>simple-libs</artifactId>
-    <version>0.2.4</version>
+    <version>0.3.0</version>
     <packaging>pom</packaging>
     <modules>
         <module>simple-libs-core</module>

@@ -57,7 +57,6 @@ public class BatchStatement implements AutoCloseable, BatchOperation {
                 QueryParameter parameter = bp.get(index);
                 if (parameter.getValue() == null) {
                     statement.setNull(currentIndex, Types.NULL);
-
                 } else {
                     if (parameter.getType() == QueryParameter.ParameterType.Object) {
                         statement.setObject(currentIndex, parameter.getValue());
@@ -76,7 +75,8 @@ public class BatchStatement implements AutoCloseable, BatchOperation {
     @Override
     public int[] executeBatch() {
         try {
-            statement = connection.prepareStatement(NamedStatementParserUtils.parseNamedSql(this.sql));
+            NamedSqlParseResult parseResult = NamedStatementParserUtils.parseNamedSql(this.sql);
+            statement = connection.prepareStatement(parseResult.getParsedSql());
             if (this.connection.getAutoCommit()) {
                 this.connection.setAutoCommit(false);
             }
@@ -92,8 +92,8 @@ public class BatchStatement implements AutoCloseable, BatchOperation {
             try {
                 this.connection.rollback();
                 throw new DataAccessException(ex);
-            } catch (SQLException ex1) {
-                throw new DataAccessException(ex);
+            } catch (SQLException exception) {
+                throw new DataAccessException(exception);
             }
         }
     }
@@ -103,7 +103,8 @@ public class BatchStatement implements AutoCloseable, BatchOperation {
         long total = 0;
         try {
             int[] executeBatchResult = null;
-            statement = connection.prepareStatement(NamedStatementParserUtils.parseNamedSql(this.sql));
+            NamedSqlParseResult parseResult = NamedStatementParserUtils.parseNamedSql(this.sql);
+            statement = connection.prepareStatement(parseResult.getParsedSql());
             if (this.connection.getAutoCommit()) {
                 this.connection.setAutoCommit(false);
             }
@@ -131,8 +132,8 @@ public class BatchStatement implements AutoCloseable, BatchOperation {
             try {
                 this.connection.rollback();
                 throw new DataAccessException(ex);
-            } catch (SQLException ex1) {
-                throw new DataAccessException(ex);
+            } catch (SQLException exception) {
+                throw new DataAccessException(exception);
             }
         }
     }

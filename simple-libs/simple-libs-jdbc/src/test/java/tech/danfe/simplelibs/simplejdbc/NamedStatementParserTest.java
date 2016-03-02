@@ -18,6 +18,7 @@ package tech.danfe.simplelibs.simplejdbc;
 import java.util.logging.Logger;
 import static org.junit.Assert.*;
 import org.junit.Test;
+import tech.danfe.simplelibs.simplejdbc.core.NamedSqlParseResult;
 import tech.danfe.simplelibs.simplejdbc.core.NamedStatementParserUtils;
 
 /**
@@ -30,11 +31,9 @@ public class NamedStatementParserTest {
 
     @Test
     public void shouldParseSql() {
-        String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
-        String pre = NamedStatementParserUtils.parseNamedSql(sql);
-        LOG.info(pre);
-        assertFalse(pre.contains(":songKey"));
-
+        String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:songKey12,:title,:price,:created,:note)";
+        NamedSqlParseResult pre = NamedStatementParserUtils.parseNamedSql(sql);
+        assertFalse(pre.getParsedSql().contains(":songKey"));
+        assertEquals(6, pre.getParaMap().size());
     }
-
 }

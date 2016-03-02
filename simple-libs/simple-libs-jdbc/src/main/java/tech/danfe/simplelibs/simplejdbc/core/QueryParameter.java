@@ -26,6 +26,7 @@ public class QueryParameter {
     private final String name;
     private final Object value;
     private final ParameterType type;
+    private int index;
 
     public enum ParameterType {
         Object,
@@ -57,6 +58,17 @@ public class QueryParameter {
 
     public ParameterType getType() {
         return type;
+    }
+
+    public QueryParameter(String name, Object value, ParameterType type, int index) {
+        this.name = name;
+        this.value = value;
+        this.type = type;
+        this.index = index;
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     @Override

@@ -28,6 +28,7 @@ import tech.danfe.simplelibs.simplejdbc.core.QueryParameter;
 import tech.danfe.simplelibs.simplejdbc.core.SimpleDataSource;
 import static org.junit.Assert.*;
 import tech.danfe.simplelibs.simplejdbc.core.BatchParameter;
+import tech.danfe.simplelibs.simplejdbc.core.QueryParameterCollection;
 
 /**
  *
@@ -58,26 +59,25 @@ public class JdbcTemplateTest {
     @Before
     public void initSetup() {
         // SimpleDataSource simpleDataSource = new SimpleDataSource(TestConfig.JDBC_DRIVER, TestConfig.DB_URL, TestConfig.USER, TestConfig.PASS);
-        this.jdbcTemplate = new JdbcTemplate(this.dataSource);
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     @Test
     public void shouldinsert() {
         Song song = new Song("12478", "test Name", 10, "Named param");
         String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:songKey12,:title,:price,:created,:note)";
-        List<QueryParameter> parameters = new ArrayList<>();
-        parameters.add(new QueryParameter("songKey", song.getSongKey()));
-        parameters.add(new QueryParameter("songKey12", song.getFileName()));
-        parameters.add(new QueryParameter("title", song.getTitle()));
-        parameters.add(new QueryParameter("price", song.getPrice()));
-        parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
-        parameters.add(new QueryParameter("note", "test"));
+        QueryParameterCollection parameters = QueryParameterCollection.newInstance();
+        parameters.addParameter(new QueryParameter("songKey", song.getSongKey()));
+        parameters.addParameter(new QueryParameter("songKey12", song.getFileName()));
+        parameters.addParameter(new QueryParameter("title", song.getTitle()));
+        parameters.addParameter(new QueryParameter("price", song.getPrice()));
+        parameters.addParameter(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+        parameters.addParameter(new QueryParameter("note", "test"));
         this.jdbcTemplate.executeUpdate(sql, parameters);
         List<Song> songs = jdbcTemplate.queryForList("select song_key,filename from songs", new SongMapper());
         assertEquals(1, songs.size());
-
-        List<QueryParameter> queryParameters = new ArrayList<>();
-        queryParameters.add(new QueryParameter("title", song.getTitle()));
+        QueryParameterCollection queryParameters = QueryParameterCollection.newInstance();
+        queryParameters.addParameter(new QueryParameter("title", song.getTitle()));
         Song song1 = jdbcTemplate.queryForObject("Select *  from songs where title=:title", new SongMapper(), queryParameters);
         assertNotNull(song1);
     }
@@ -86,13 +86,13 @@ public class JdbcTemplateTest {
     public void shouldWorkTransactionWithRollback() {
         Song song = new Song("12478", "test Name", 10, "Named param");
         String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
-        List<QueryParameter> parameters = new ArrayList<>();
-        parameters.add(new QueryParameter("songKey", song.getSongKey()));
-        parameters.add(new QueryParameter("fileName", song.getFileName()));
-        parameters.add(new QueryParameter("title", song.getTitle()));
-        parameters.add(new QueryParameter("price", song.getPrice()));
-        parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
-        parameters.add(new QueryParameter("note", "test"));
+        QueryParameterCollection parameters = QueryParameterCollection.newInstance();
+        parameters.addParameter(new QueryParameter("songKey", song.getSongKey()));
+        parameters.addParameter(new QueryParameter("fileName", song.getFileName()));
+        parameters.addParameter(new QueryParameter("title", song.getTitle()));
+        parameters.addParameter(new QueryParameter("price", song.getPrice()));
+        parameters.addParameter(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+        parameters.addParameter(new QueryParameter("note", "test"));
         this.jdbcTemplate.beginTransaction();
         this.jdbcTemplate.executeUpdate(sql, parameters);
         this.jdbcTemplate.rollbackTransaction();
@@ -104,13 +104,13 @@ public class JdbcTemplateTest {
     public void shouldWorkTransactionWithCommit() {
         Song song = new Song("12478", "test Name", 10, "Named param");
         String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
-        List<QueryParameter> parameters = new ArrayList<>();
-        parameters.add(new QueryParameter("songKey", song.getSongKey()));
-        parameters.add(new QueryParameter("fileName", song.getFileName()));
-        parameters.add(new QueryParameter("title", song.getTitle()));
-        parameters.add(new QueryParameter("price", song.getPrice()));
-        parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
-        parameters.add(new QueryParameter("note", "test"));
+        QueryParameterCollection parameters = QueryParameterCollection.newInstance();
+        parameters.addParameter(new QueryParameter("songKey", song.getSongKey()));
+        parameters.addParameter(new QueryParameter("fileName", song.getFileName()));
+        parameters.addParameter(new QueryParameter("title", song.getTitle()));
+        parameters.addParameter(new QueryParameter("price", song.getPrice()));
+        parameters.addParameter(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+        parameters.addParameter(new QueryParameter("note", "test"));
         this.jdbcTemplate.beginTransaction();
         this.jdbcTemplate.executeUpdate(sql, parameters);
         this.jdbcTemplate.commitTransaction();
@@ -121,13 +121,13 @@ public class JdbcTemplateTest {
     private void doSimpleiInsertOnly() {
         Song song = new Song("12478233", "test Name", 10, "Named param");
         String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
-        List<QueryParameter> parameters = new ArrayList<>();
-        parameters.add(new QueryParameter("songKey", song.getSongKey()));
-        parameters.add(new QueryParameter("fileName", song.getFileName()));
-        parameters.add(new QueryParameter("title", song.getTitle()));
-        parameters.add(new QueryParameter("price", song.getPrice()));
-        parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
-        parameters.add(new QueryParameter("note", "test"));
+        QueryParameterCollection parameters = QueryParameterCollection.newInstance();
+        parameters.addParameter(new QueryParameter("songKey", song.getSongKey()));
+        parameters.addParameter(new QueryParameter("fileName", song.getFileName()));
+        parameters.addParameter(new QueryParameter("title", song.getTitle()));
+        parameters.addParameter(new QueryParameter("price", song.getPrice()));
+        parameters.addParameter(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+        parameters.addParameter(new QueryParameter("note", "test"));
         this.jdbcTemplate.executeUpdate(sql, parameters);
 
     }
@@ -136,13 +136,13 @@ public class JdbcTemplateTest {
         JdbcTemplate jdbcTemplate2 = new JdbcTemplate(dataSource);
         Song song = new Song("12478233", "test Name", 10, "Named param");
         String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
-        List<QueryParameter> parameters = new ArrayList<>();
-        parameters.add(new QueryParameter("songKey", song.getSongKey()));
-        parameters.add(new QueryParameter("fileName", song.getFileName()));
-        parameters.add(new QueryParameter("title", song.getTitle()));
-        parameters.add(new QueryParameter("price", song.getPrice()));
-        parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
-        parameters.add(new QueryParameter("note", "test"));
+        QueryParameterCollection parameters = QueryParameterCollection.newInstance();
+        parameters.addParameter(new QueryParameter("songKey", song.getSongKey()));
+        parameters.addParameter(new QueryParameter("fileName", song.getFileName()));
+        parameters.addParameter(new QueryParameter("title", song.getTitle()));
+        parameters.addParameter(new QueryParameter("price", song.getPrice()));
+        parameters.addParameter(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+        parameters.addParameter(new QueryParameter("note", "test"));
         jdbcTemplate2.executeUpdate(sql, parameters);
     }
 
@@ -150,13 +150,13 @@ public class JdbcTemplateTest {
     public void shouldWorkWithNestedTransactionOnCommit() {
         Song song = new Song("12478", "test Name", 10, "Named param");
         String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
-        List<QueryParameter> parameters = new ArrayList<>();
-        parameters.add(new QueryParameter("songKey", song.getSongKey()));
-        parameters.add(new QueryParameter("fileName", song.getFileName()));
-        parameters.add(new QueryParameter("title", song.getTitle()));
-        parameters.add(new QueryParameter("price", song.getPrice()));
-        parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
-        parameters.add(new QueryParameter("note", "test"));
+        QueryParameterCollection parameters = QueryParameterCollection.newInstance();
+        parameters.addParameter(new QueryParameter("songKey", song.getSongKey()));
+        parameters.addParameter(new QueryParameter("fileName", song.getFileName()));
+        parameters.addParameter(new QueryParameter("title", song.getTitle()));
+        parameters.addParameter(new QueryParameter("price", song.getPrice()));
+        parameters.addParameter(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+        parameters.addParameter(new QueryParameter("note", "test"));
         this.jdbcTemplate.beginTransaction();
         this.doSimpleiInsertOnly();
         this.jdbcTemplate.executeUpdate(sql, parameters);
@@ -169,13 +169,13 @@ public class JdbcTemplateTest {
     public void shouldWorkWithNestedTransactionOnRollback() {
         Song song = new Song("12478", "test Name", 10, "Named param");
         String sql = "Insert into songs (song_key,filename,title,price,created,note) values (:songKey,:fileName,:title,:price,:created,:note)";
-        List<QueryParameter> parameters = new ArrayList<>();
-        parameters.add(new QueryParameter("songKey", song.getSongKey()));
-        parameters.add(new QueryParameter("fileName", song.getFileName()));
-        parameters.add(new QueryParameter("title", song.getTitle()));
-        parameters.add(new QueryParameter("price", song.getPrice()));
-        parameters.add(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
-        parameters.add(new QueryParameter("note", "test"));
+        QueryParameterCollection parameters = QueryParameterCollection.newInstance();
+        parameters.addParameter(new QueryParameter("songKey", song.getSongKey()));
+        parameters.addParameter(new QueryParameter("fileName", song.getFileName()));
+        parameters.addParameter(new QueryParameter("title", song.getTitle()));
+        parameters.addParameter(new QueryParameter("price", song.getPrice()));
+        parameters.addParameter(new QueryParameter("created", song.getCreated(), QueryParameter.ParameterType.Date));
+        parameters.addParameter(new QueryParameter("note", "test"));
         this.jdbcTemplate.beginTransaction();
         this.insertWithNewDatasource();
         this.jdbcTemplate.executeUpdate(sql, parameters);

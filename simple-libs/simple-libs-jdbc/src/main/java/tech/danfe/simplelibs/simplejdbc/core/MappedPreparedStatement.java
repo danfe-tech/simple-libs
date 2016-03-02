@@ -19,7 +19,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
+import java.sql.Types;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * <pre>
@@ -31,9 +33,10 @@ import java.util.List;
 public class MappedPreparedStatement implements AutoCloseable {
 
     private final Connection connection;
-    private String sql;
-    private final List<QueryParameter> parameters;
+    private final String sql;
+    private final QueryParameterCollection parameters;
     private PreparedStatement statement = null;
+    private static final Logger LOG = Logger.getLogger(MappedPreparedStatement.class.getName());
 
     /**
      * *
@@ -42,7 +45,7 @@ public class MappedPreparedStatement implements AutoCloseable {
      * @param sql
      * @param parameters
      */
-    public MappedPreparedStatement(Connection connection, String sql, List<QueryParameter> parameters) {
+    public MappedPreparedStatement(Connection connection, String sql, QueryParameterCollection parameters) {
         this.connection = connection;
         this.sql = sql;
         this.parameters = parameters;
@@ -51,27 +54,26 @@ public class MappedPreparedStatement implements AutoCloseable {
 
     private void fillParameter() {
         try {
-            for (int index = 0; index < parameters.size(); index++) {
-                this.sql = sql.replace("\\b:" + parameters.get(index).getName() + "\\b", "?");
-            }
-            statement = connection.prepareStatement(NamedStatementParserUtils.parseNamedSql(this.sql));
-            for (int index = 1; index <= parameters.size(); index++) {
-                QueryParameter parameter = parameters.get(index - 1);
-
+            NamedSqlParseResult parseResult = NamedStatementParserUtils.parseNamedSql(this.sql);
+            statement = connection.prepareStatement(parseResult.getParsedSql());
+            LOG.log(Level.INFO, " SQL :: {0}", parseResult.getParsedSql());
+            LOG.log(Level.INFO, " TOTAL PARAMETER SIZE :: {0}", parseResult.getParaMap().size());
+            for (int index = 1; index <= parseResult.getParaMap().size(); index++) {
+                QueryParameter parameter = parameters.getParameter().get(index);
+                LOG.log(Level.INFO, " Index  = {0} Value = {1}", new Object[]{index, parameter.toString()});
                 if (parameter.getValue() == null) {
-                    statement.setObject(index, parameter.getValue());
-                    continue;
-                }
-                if (parameter.getType() == QueryParameter.ParameterType.Object) {
-                    statement.setObject(index, parameter.getValue());
-                }
-                if (parameter.getType() == QueryParameter.ParameterType.Date) {
-                    if (parameter.getValue() != null) {
-                        statement.setDate(index, new java.sql.Date(((java.util.Date) parameter.getValue()).getTime()));
+                    statement.setNull(index, Types.NULL);
+                } else {
+                    if (parameter.getType() == QueryParameter.ParameterType.Object) {
+                        statement.setObject(index, parameter.getValue());
+                    }
+                    if (parameter.getType() == QueryParameter.ParameterType.Date) {
+                        if (parameter.getValue() != null) {
+                            statement.setDate(index, new java.sql.Date(((java.util.Date) parameter.getValue()).getTime()));
+                        }
                     }
                 }
             }
-
         } catch (SQLException exception) {
             throw new DataAccessException(exception);
         }
@@ -89,6 +91,7 @@ public class MappedPreparedStatement implements AutoCloseable {
 
     public int executeUpdate() {
         try {
+            LOG.log(Level.INFO, "Executing SQL :: {0}", this.statement.toString());
             return statement.executeUpdate();
         } catch (SQLException ex) {
             throw new DataAccessException(ex);
@@ -97,6 +100,7 @@ public class MappedPreparedStatement implements AutoCloseable {
 
     public ResultSet executeQuery() {
         try {
+            LOG.log(Level.INFO, "Executing SQL :: {0}", this.statement.toString());
             return this.statement.executeQuery();
         } catch (SQLException ex) {
             throw new DataAccessException(ex);

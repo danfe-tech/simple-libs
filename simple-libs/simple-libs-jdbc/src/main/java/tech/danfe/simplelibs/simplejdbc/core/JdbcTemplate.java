@@ -119,7 +119,7 @@ public class JdbcTemplate implements NamedParameterJdbcOperations, JdbcOperation
     }
 
     @Override
-    public int executeUpdate(String sql, List<QueryParameter> parameters) {
+    public int executeUpdate(String sql, QueryParameterCollection parameters) {
         Connection connection = this.getConnection();
         try (MappedPreparedStatement ps = new MappedPreparedStatement(connection, sql, parameters)) {
             return ps.executeUpdate();
@@ -157,7 +157,7 @@ public class JdbcTemplate implements NamedParameterJdbcOperations, JdbcOperation
     }
 
     @Override
-    public <T> ArrayList<T> queryForList(String sql, final RowMapper<T> mapper, List<QueryParameter> parameters) {
+    public <T> ArrayList<T> queryForList(String sql, final RowMapper<T> mapper, QueryParameterCollection parameters) {
         final ArrayList<T> list = new ArrayList<>();
         Connection connection = this.getConnection();
         try (MappedPreparedStatement ps = new MappedPreparedStatement(connection, sql, parameters);
@@ -174,7 +174,7 @@ public class JdbcTemplate implements NamedParameterJdbcOperations, JdbcOperation
     }
 
     @Override
-    public <T> T queryForObject(String sql, final RowMapper<T> mapper, List<QueryParameter> parameters) {
+    public <T> T queryForObject(String sql, final RowMapper<T> mapper, QueryParameterCollection parameters) {
         Connection connection = this.getConnection();
         try (
                 MappedPreparedStatement ps = new MappedPreparedStatement(connection, sql, parameters);
@@ -221,7 +221,7 @@ public class JdbcTemplate implements NamedParameterJdbcOperations, JdbcOperation
     }
 
     @Override
-    public String queryForString(String sql, List<QueryParameter> parameters) {
+    public String queryForString(String sql, QueryParameterCollection parameters) {
         Connection connection = this.getConnection();
         try (MappedPreparedStatement ps = new MappedPreparedStatement(connection, sql, parameters);
                 ResultSet rs = ps.executeQuery()) {
@@ -252,7 +252,7 @@ public class JdbcTemplate implements NamedParameterJdbcOperations, JdbcOperation
     }
 
     @Override
-    public List<String> queryForStringList(String sql, List<QueryParameter> parameters) {
+    public List<String> queryForStringList(String sql, QueryParameterCollection parameters) {
         List<String> list = new ArrayList<>();
         Connection connection = this.getConnection();
         try (MappedPreparedStatement ps = new MappedPreparedStatement(connection, sql, parameters);
@@ -301,9 +301,9 @@ public class JdbcTemplate implements NamedParameterJdbcOperations, JdbcOperation
     }
 
     @Override
-    public Integer queryForInt(String sql, QueryParameter... parameters) {
+    public Integer queryForInt(String sql, QueryParameterCollection parameters) {
         Connection connection = this.getConnection();
-        try (MappedPreparedStatement ps = new MappedPreparedStatement(connection, sql, Arrays.asList(parameters));
+        try (MappedPreparedStatement ps = new MappedPreparedStatement(connection, sql, parameters);
                 ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(DEFAULT_INDEX);

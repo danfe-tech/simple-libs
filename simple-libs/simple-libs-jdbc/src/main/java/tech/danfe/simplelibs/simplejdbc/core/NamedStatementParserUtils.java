@@ -15,6 +15,9 @@
  */
 package tech.danfe.simplelibs.simplejdbc.core;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *
  * @author Suraj Chhetry
@@ -24,8 +27,10 @@ public class NamedStatementParserUtils {
     private NamedStatementParserUtils() {
     }
 
-    public static String parseNamedSql(String query) {
+    public static NamedSqlParseResult parseNamedSql(String query) {
         int length = query.length();
+        int parameterCount = 0;
+        Map<Integer, String> param = new HashMap<>();
         StringBuilder parsedQuery = new StringBuilder(length);
         boolean hasSingleQuote = false;
         boolean hasDoubleQuote = false;
@@ -50,12 +55,14 @@ public class NamedStatementParserUtils {
                     j++;
                 }
                 String name = query.substring(i + 1, j);
-                c = '?'; 
+                c = '?';
                 i += name.length();
+                param.put(++parameterCount, name);
             }
             parsedQuery.append(c);
         }
-        return parsedQuery.toString();
+
+        return new NamedSqlParseResult(parsedQuery.toString(), param);
 
     }
 }
