@@ -33,7 +33,8 @@ public class QueryParameter {
         String,
         Date,
         Integer,
-        Double
+        Double,
+        Boolean
     }
 
     public QueryParameter(String name, Object value) {

@@ -65,11 +65,18 @@ public class MappedPreparedStatement implements AutoCloseable {
                     statement.setNull(index, Types.NULL);
                 } else {
                     if (parameter.getType() == QueryParameter.ParameterType.Object) {
+                        LOG.info("Setting Object Value");
                         statement.setObject(index, parameter.getValue());
                     }
+                    if (parameter.getType() == QueryParameter.ParameterType.Boolean) {
+                        LOG.info("Setting Boolean Value");
+                        statement.setBoolean(index, Boolean.valueOf(parameter.getValue().toString()));
+                    }
                     if (parameter.getType() == QueryParameter.ParameterType.Date) {
+                        LOG.info("Setting Date Value");
                         if (parameter.getValue() != null) {
-                            statement.setDate(index, new java.sql.Date(((java.util.Date) parameter.getValue()).getTime()));
+                            long javaTime = ((java.util.Date) parameter.getValue()).getTime();
+                            statement.setDate(index, new java.sql.Date(javaTime));
                         }
                     }
                 }

@@ -28,8 +28,8 @@ public class UniqueKeyGenerator {
         return UUID.randomUUID().toString().replaceAll("-", "");
     }
 
-    public static synchronized String generateNumeric() {
-        return String.valueOf(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE));
+    public static synchronized long generateNumeric() {
+        return ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE);
     }
 
 }
